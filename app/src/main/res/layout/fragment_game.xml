@@ -45,10 +45,10 @@
                 app:layout_constraintBottom_toTopOf="@+id/textField"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_unscrambled_word" />
+                app:layout_constraintTop_toBottomOf="@+id/textView_guess_word" />
 
             <TextView
-                android:id="@+id/textView_unscrambled_word"
+                android:id="@+id/textView_guess_word"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -58,7 +58,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/word_count"
-                tools:text="Scramble word" />
+                tools:text="Guess word" />
 
             <TextView
                 android:id="@+id/word_count"
@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/word_count"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                app:layout_constraintBottom_toTopOf="@+id/textView_unscrambled_word"
+                app:layout_constraintBottom_toTopOf="@+id/textView_guess_word"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="3 of 10 words" />
