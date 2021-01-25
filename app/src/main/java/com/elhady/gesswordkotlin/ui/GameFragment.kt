@@ -1,6 +1,7 @@
 package com.elhady.gesswordkotlin.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +10,7 @@ import androidx.fragment.app.viewModels
 import com.elhady.gesswordkotlin.R
 import com.elhady.gesswordkotlin.databinding.FragmentGameBinding
 import com.elhady.gesswordkotlin.model.MAX_NO_OF_WORDS
-import com.elhady.gesswordkotlin.model.SCORE_INCREASE
-import com.elhady.gesswordkotlin.model.wordsList
+import com.elhady.gesswordkotlin.model.allWordsList
 import com.elhady.gesswordkotlin.viewmodel.GameViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -34,6 +34,9 @@ class GameFragment : Fragment() {
     ): View {
         // Inflate the layout XML file and return a binding object instance
         binding = FragmentGameBinding.inflate(inflater, container, false)
+        Log.d("GameFragment", "GameFragment created/re-created!")
+        Log.d("GameFragment", "Word: ${viewModel.currentGuessWord} " +
+                "Score: ${viewModel.score} WordCount: ${viewModel.currentWordCount}")
         return binding.root
     }
 
@@ -52,33 +55,31 @@ class GameFragment : Fragment() {
     }
 
     /*
-    * Checks the user's word, and updates the score accordingly.
-    * Displays the next scrambled word.
-    */
+     * Checks the user's word, and updates the score accordingly.
+     * Displays the next guess word.
+     * After the last word, the user is shown a Dialog with the final score.
+     */
     private fun onSubmitWord() {
-//        currentGuessWord = getNextScrambledWord()
-//        currentWordCount++
-//        score += SCORE_INCREASE
-//        binding.wordCount.text = getString(R.string.word_count, currentWordCount, MAX_NO_OF_WORDS)
-//        binding.score.text = getString(R.string.score, score)
-//        setErrorTextField(false)
-//        updateNextWordOnScreen()
+        val playerWord = binding.textInputEditText.text.toString()
+
+        if (viewModel.isUserWordCorrect(playerWord)) {
+            setErrorTextField(false)
+            if (viewModel.nextWord()) {
+                updateNextWordOnScreen()
+            } else {
+                showFinalScoreDialog()
+            }
+        } else {
+            setErrorTextField(true)
+        }
     }
 
     /*
-     * Skips the current word without changing the score.
-     * Increases the word count.
-     */
+    * Skips the current word without changing the score.
+    */
     private fun onSkipWord() {
-//        currentGuessWord = getNextScrambledWord()
-//        currentWordCount++
-//        binding.wordCount.text = getString(R.string.word_count, currentWordCount, MAX_NO_OF_WORDS)
-//        setErrorTextField(false)
-//        updateNextWordOnScreen()
-    }
-
-    private fun onSubmitWord() {
         if (viewModel.nextWord()) {
+            setErrorTextField(false)
             updateNextWordOnScreen()
         } else {
             showFinalScoreDialog()
@@ -88,17 +89,19 @@ class GameFragment : Fragment() {
     /*
      * Gets a random word for the list of words and shuffles the letters in it.
      */
-//    private fun getNextScrambledWord(): String {
-//        val tempWord = wordsList.random().toCharArray()
-//        tempWord.shuffle()
-//        return String(tempWord)
-//    }
+    private fun getNextScrambledWord(): String {
+        val tempWord = allWordsList.random().toCharArray()
+        tempWord.shuffle()
+        return String(tempWord)
+    }
+
 
     /*
      * Re-initializes the data in the ViewModel and updates the views with the new data, to
      * restart the game.
      */
     private fun restartGame() {
+        viewModel.reinitializeData()
         setErrorTextField(false)
         updateNextWordOnScreen()
     }
@@ -108,6 +111,11 @@ class GameFragment : Fragment() {
      */
     private fun exitGame() {
         activity?.finish()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        Log.d("GameFragment", "GameFragment destroyed!")
     }
 
     /*
@@ -124,10 +132,9 @@ class GameFragment : Fragment() {
     }
 
     /*
-     * Displays the next guess word on screen.
+     * Displays the next scrambled word on screen.
      */
     private fun updateNextWordOnScreen() {
-//        binding.textViewGuessWord.text = currentGuessWord
         binding.textViewGuessWord.text = viewModel.currentGuessWord
     }
 
