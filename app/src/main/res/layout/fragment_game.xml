@@ -4,6 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="gameViewModel"
+            type="com.elhady.gesswordkotlin.viewmodel.GameViewModel" />
+
+        <variable
+            name="maxNoOfWords"
+            type="int" />
+    </data>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -11,8 +22,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            tools:context=".ui.game.GameFragment">
+            android:padding="16dp">
 
             <Button
                 android:id="@+id/skip"
@@ -45,28 +55,29 @@
                 app:layout_constraintBottom_toTopOf="@+id/textField"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView_guess_word" />
+                app:layout_constraintTop_toBottomOf="@+id/textView_unscrambled_word" />
 
             <TextView
-                android:id="@+id/textView_guess_word"
+                android:id="@+id/textView_unscrambled_word"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="24dp"
+                android:text="@{gameViewModel.currentGuessWord}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
                 app:layout_constraintBottom_toTopOf="@+id/textView_instructions"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/word_count"
-                tools:text="Guess word" />
+                tools:text="Scramble word" />
 
             <TextView
                 android:id="@+id/word_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/word_count"
+                android:text="@{@string/word_count(gameViewModel.currentWordCount, maxNoOfWords)}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                app:layout_constraintBottom_toTopOf="@+id/textView_guess_word"
+                app:layout_constraintBottom_toTopOf="@+id/textView_unscrambled_word"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="3 of 10 words" />
@@ -75,7 +86,7 @@
                 android:id="@+id/score"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/score"
+                android:text="@{@string/score(gameViewModel.score)}"
                 android:textAllCaps="true"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 app:layout_constraintEnd_toEndOf="parent"
