@@ -18,7 +18,7 @@ class GameFragment : Fragment() {
 
     private var score = 0
     private var currentWordCount = 0
-    private var currentScrambledWord = "test"
+    private var currentGuessWord = "test"
 
 
     // Binding object instance with access to the views in the game_fragment.xml layout
@@ -55,7 +55,7 @@ class GameFragment : Fragment() {
     * Displays the next scrambled word.
     */
     private fun onSubmitWord() {
-        currentScrambledWord = getNextScrambledWord()
+        currentGuessWord = getNextScrambledWord()
         currentWordCount++
         score += SCORE_INCREASE
         binding.wordCount.text = getString(R.string.word_count, currentWordCount, MAX_NO_OF_WORDS)
@@ -69,7 +69,7 @@ class GameFragment : Fragment() {
      * Increases the word count.
      */
     private fun onSkipWord() {
-        currentScrambledWord = getNextScrambledWord()
+        currentGuessWord = getNextScrambledWord()
         currentWordCount++
         binding.wordCount.text = getString(R.string.word_count, currentWordCount, MAX_NO_OF_WORDS)
         setErrorTextField(false)
@@ -115,9 +115,9 @@ class GameFragment : Fragment() {
     }
 
     /*
-     * Displays the next scrambled word on screen.
+     * Displays the next guess word on screen.
      */
     private fun updateNextWordOnScreen() {
-        binding.textViewUnscrambledWord.text = currentScrambledWord
+        binding.textViewGuessWord.text = currentGuessWord
     }
 }
