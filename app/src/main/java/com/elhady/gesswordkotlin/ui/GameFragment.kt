@@ -1,28 +1,28 @@
 package com.elhady.gesswordkotlin.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import com.elhady.gesswordkotlin.R
 import com.elhady.gesswordkotlin.databinding.FragmentGameBinding
 import com.elhady.gesswordkotlin.model.MAX_NO_OF_WORDS
-import com.elhady.gesswordkotlin.model.SCORE_INCREASE
-import com.elhady.gesswordkotlin.model.wordsList
+import com.elhady.gesswordkotlin.model.allWordsList
+import com.elhady.gesswordkotlin.viewmodel.GameViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * Created by islam elhady on 24-Jan-21.
  */
 class GameFragment : Fragment() {
 
-    private var score = 0
-    private var currentWordCount = 0
-    private var currentGuessWord = "test"
-
 
     // Binding object instance with access to the views in the game_fragment.xml layout
     private lateinit var binding: FragmentGameBinding
+    private val viewModel: GameViewModel by viewModels()
 
     // Create a ViewModel the first time the fragment is created.
     // If the fragment is re-created, it receives the same GameViewModel instance created by the
@@ -40,58 +40,57 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Set the viewModel for data binding - this allows the bound layout access
+        // to all the data in the VieWModel
+        binding.gameViewModel = viewModel
+        binding.maxNoOfWords = MAX_NO_OF_WORDS
+        // Specify the fragment view as the lifecycle owner of the binding.
+        // This is used so that the binding can observe LiveData updates
+        binding.lifecycleOwner = viewLifecycleOwner
+
         // Setup a click listener for the Submit and Skip buttons.
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
-        // Update the UI
-        updateNextWordOnScreen()
-        binding.score.text = getString(R.string.score, 0)
-        binding.wordCount.text = getString(
-            R.string.word_count, 0, MAX_NO_OF_WORDS)
     }
 
     /*
-    * Checks the user's word, and updates the score accordingly.
-    * Displays the next scrambled word.
-    */
+     * Checks the user's word, and updates the score accordingly.
+     * Displays the next guess word.
+     * After the last word, the user is shown a Dialog with the final score.
+     */
     private fun onSubmitWord() {
-        currentGuessWord = getNextScrambledWord()
-        currentWordCount++
-        score += SCORE_INCREASE
-        binding.wordCount.text = getString(R.string.word_count, currentWordCount, MAX_NO_OF_WORDS)
-        binding.score.text = getString(R.string.score, score)
-        setErrorTextField(false)
-        updateNextWordOnScreen()
+        val playerWord = binding.textInputEditText.text.toString()
+
+        if (viewModel.isUserWordCorrect(playerWord)) {
+            setErrorTextField(false)
+            if (!viewModel.nextWord()) {
+                showFinalScoreDialog()
+            }
+        } else {
+            setErrorTextField(true)
+        }
     }
 
     /*
-     * Skips the current word without changing the score.
-     * Increases the word count.
-     */
+    * Skips the current word without changing the score.
+    */
     private fun onSkipWord() {
-        currentGuessWord = getNextScrambledWord()
-        currentWordCount++
-        binding.wordCount.text = getString(R.string.word_count, currentWordCount, MAX_NO_OF_WORDS)
-        setErrorTextField(false)
-        updateNextWordOnScreen()
+        if (viewModel.nextWord()) {
+            setErrorTextField(false)
+        } else {
+            showFinalScoreDialog()
+        }
     }
 
-    /*
-     * Gets a random word for the list of words and shuffles the letters in it.
-     */
-    private fun getNextScrambledWord(): String {
-        val tempWord = wordsList.random().toCharArray()
-        tempWord.shuffle()
-        return String(tempWord)
-    }
+
 
     /*
      * Re-initializes the data in the ViewModel and updates the views with the new data, to
      * restart the game.
      */
     private fun restartGame() {
+        viewModel.reinitializeData()
         setErrorTextField(false)
-        updateNextWordOnScreen()
     }
 
     /*
@@ -100,6 +99,7 @@ class GameFragment : Fragment() {
     private fun exitGame() {
         activity?.finish()
     }
+
 
     /*
     * Sets and resets the text field error status.
@@ -114,10 +114,30 @@ class GameFragment : Fragment() {
         }
     }
 
-    /*
-     * Displays the next guess word on screen.
+    /**
+     * Creates and shows an AlertDialog with the final score.
+     *
+     *  This syntax may be new to you, but this is shorthand for
+     *  setNegativeButton(getString(R.string.exit), { _, _ -> exitGame()})
+     *  where the setNegativeButton() method takes in two parameters: a String and a function,
+     *  DialogInterface.OnClickListener() which can be expressed as a lambda.
+     *  When the last argument being passed in is a function,
+     *  you could place the lambda expression outside the parentheses.
+     *  This is known as trailing lambda syntax. Both ways of writing
+     *  the code (with the lambda inside or outside the parentheses)
+     *  is acceptable. The same applies for the setPositiveButton function.
      */
-    private fun updateNextWordOnScreen() {
-        binding.textViewGuessWord.text = currentGuessWord
+    private fun showFinalScoreDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.congratulations))
+            .setMessage(getString(R.string.you_scored, viewModel.score.value))
+            .setCancelable(false)
+            .setNegativeButton(getString(R.string.exit)) { _, _ ->
+                exitGame()
+            }
+            .setPositiveButton(getString(R.string.play_again)) { _, _ ->
+                restartGame()
+            }
+            .show()
     }
 }

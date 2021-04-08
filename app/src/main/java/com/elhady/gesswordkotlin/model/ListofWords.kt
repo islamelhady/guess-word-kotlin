@@ -6,7 +6,7 @@ package com.elhady.gesswordkotlin.model
 const val MAX_NO_OF_WORDS = 10
 const val SCORE_INCREASE = 20
 
-val wordsList: List<String> =
+val allWordsList: List<String> =
     listOf("animal",
         "auto",
         "anecdote",
